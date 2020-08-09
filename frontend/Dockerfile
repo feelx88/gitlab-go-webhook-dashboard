@@ -1,5 +1,8 @@
 FROM node:alpine as build
 
+ARG backend_url
+ENV VUE_APP_BACKEND_URL=$backend_url
+
 WORKDIR /app
 COPY . .
 
