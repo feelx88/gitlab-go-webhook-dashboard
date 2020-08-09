@@ -148,7 +148,9 @@ func webhook(c *gin.Context) {
 	db.FirstOrCreate(&pipeline, &Pipeline{
 		Ref:       webhookData.Object_attributes.Ref,
 		ProjectID: &project.ID,
-	}).UpdateColumn(&Pipeline{
+	})
+
+	db.Model(&pipeline).UpdateColumn(&Pipeline{
 		Status:     webhookData.Object_attributes.Status,
 		FinishedAt: &webhookData.Object_attributes.Finished_at,
 	})
