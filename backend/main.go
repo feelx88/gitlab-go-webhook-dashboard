@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -46,7 +47,7 @@ type WebhookData struct {
 	Object_attributes struct {
 		Ref         string
 		Status      string
-		Finished_at time.Time
+		Finished_at string
 	}
 	Project struct {
 		Name    string
@@ -152,9 +153,10 @@ func webhook(c *gin.Context) {
 		ProjectID: &project.ID,
 	})
 
+	finishedAt, _ := dateparse.ParseAny(webhookData.Object_attributes.Finished_at)
 	db.Model(&pipeline).UpdateColumn(&Pipeline{
 		Status:     webhookData.Object_attributes.Status,
-		FinishedAt: &webhookData.Object_attributes.Finished_at,
+		FinishedAt: &finishedAt,
 	})
 
 	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
