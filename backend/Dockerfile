@@ -1,9 +1,10 @@
 FROM golang:alpine
 
+RUN apk add --no-cache git make build-base
+
 WORKDIR /go/src/app
 COPY . .
 
-RUN apk add --no-cache git make build-base
 RUN go get -d -v ./...
 RUN go install -v ./...
 
