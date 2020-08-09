@@ -9,4 +9,4 @@ RUN go install -v ./...
 
 EXPOSE 8081
 
-CMD ["app"]
+CMD ["gitlab-go-webhook-dashboard"]
