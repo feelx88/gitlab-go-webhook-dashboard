@@ -26,7 +26,12 @@
       >
         <v-card outlined :color="project.color">
           <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
-          <v-card-text>{{ project.Status }} @ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</v-card-text>
+          <v-card-text>
+            {{ project.Status }}
+            <span
+              v-if="project.Status === 'success' || project.Status === 'failed'"
+            >@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
+          </v-card-text>
 
           <v-card-actions>
             <v-btn icon target="_blank" :href="project.URL">
