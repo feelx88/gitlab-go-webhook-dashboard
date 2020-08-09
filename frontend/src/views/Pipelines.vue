@@ -29,7 +29,9 @@
           <v-card-text>{{ project.Status }} @ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</v-card-text>
 
           <v-card-actions>
-            <v-btn text target="_blank" :href="project.URL">GitLab</v-btn>
+            <v-btn icon target="_blank" :href="project.URL">
+              <v-icon>mdi-open-in-new</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -45,6 +47,7 @@ export default {
     projects: null,
     refs: [],
     ref: undefined,
+    webSocket: null,
   }),
   methods: {
     refresh: function () {
@@ -54,33 +57,48 @@ export default {
           `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}`
         )
         .then((response) => {
-          let projects = [];
-          const refs = new Set();
-          for (let project of response.data.Projects) {
-            projects = [
-              ...projects,
-              ...project.Pipelines.map((pipeline) => {
-                refs.add(pipeline.Ref);
-                return {
-                  ...project,
-                  ...pipeline,
-                  color:
-                    pipeline.Status === "running"
-                      ? "blue"
-                      : pipeline.Status === "failed"
-                      ? "red"
-                      : "green",
-                };
-              }),
-            ];
-          }
-          this.projects = projects;
-          this.refs = Array.from(refs);
+          this.mapData(response.data);
         });
     },
+
+    mapData: function (data) {
+      let projects = [];
+      const refs = new Set();
+      for (let project of data.Projects) {
+        projects = [
+          ...projects,
+          ...project.Pipelines.map((pipeline) => {
+            refs.add(pipeline.Ref);
+            return {
+              ...project,
+              ...pipeline,
+              color:
+                pipeline.Status === "running"
+                  ? "blue"
+                  : pipeline.Status === "failed"
+                  ? "red"
+                  : "green",
+            };
+          }),
+        ];
+      }
+      this.projects = projects;
+      this.refs = Array.from(refs);
+    },
   },
+
   created() {
     this.refresh();
+
+    this.webSocket = new WebSocket(
+      `${process.env.VUE_APP_BACKEND_URL}/ws`.replace("http", "ws")
+    );
+    this.webSocket.onmessage = (message) =>
+      this.mapData(JSON.parse(message.data));
+  },
+
+  destroyed() {
+    this.webSocket.close();
   },
 };
 </script>

@@ -44,12 +44,32 @@ export default {
   data: () => ({
     drawer: null,
     namespaces: null,
+    webSocket: null,
   }),
+
   created() {
     this.$vuetify.theme.dark = true;
     Vue.axios
       .get(`${process.env.VUE_APP_BACKEND_URL}/namespaces`)
       .then((response) => (this.namespaces = response.data));
+
+    this.webSocket = new WebSocket(
+      `${process.env.VUE_APP_BACKEND_URL}/ws`.replace("http", "ws")
+    );
+    this.webSocket.onmessage = (message) => {
+      const namespace = JSON.parse(message.data);
+      const index = this.namespaces.find((ns) => namespace.ID === ns.ID);
+
+      if (index) {
+        this.namespaces[index] = namespace;
+      } else {
+        this.namespaces = [...this.namespaces, namespace];
+      }
+    };
+  },
+
+  destroyed() {
+    this.webSocket.close();
   },
 };
 </script>

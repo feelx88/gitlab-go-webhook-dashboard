@@ -21,7 +21,8 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "serve"
+                "serve",
+                "--port 8080"
             ],
             "env": {},
             "args": []
