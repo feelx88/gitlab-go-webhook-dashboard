@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -10,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 // Namespace model
@@ -53,7 +55,17 @@ type WebhookData struct {
 }
 
 func main() {
-	db, err := gorm.Open("sqlite3", "file::memory:?cache=shared")
+	dbFileName := os.GetEnv("DB_FILE")
+	if !dbFileName {
+		dbFileName = "data.db"
+	}
+
+	listenAddress := os.GetEnv("LISTEN_ADDRESS")
+	if !listenAddress {
+		listenAddress = "0.0.0.0:8081"
+	}
+
+	db, err := gorm.Open("sqlite3", dbFileName)
 	defer db.Close()
 
 	if err != nil {
@@ -139,5 +151,5 @@ func main() {
 		wsConnections = append(wsConnections, conn)
 	})
 
-	router.Run("0.0.0.0:8081")
+	router.Run(listenAddress)
 }
