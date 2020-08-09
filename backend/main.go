@@ -136,8 +136,10 @@ func webhook(c *gin.Context) {
 
 	db.FirstOrCreate(&namespace, &Namespace{Name: c.Param("namespace")})
 
-	c.BindJSON(&webhookData)
-	fmt.Println(webhookData)
+	err := c.BindJSON(&webhookData)
+	if err != nil {
+		c.Error(err)
+	}
 
 	db.FirstOrCreate(&project, &Project{
 		Name:        webhookData.Project.Name,
