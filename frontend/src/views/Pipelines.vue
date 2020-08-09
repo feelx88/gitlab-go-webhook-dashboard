@@ -69,15 +69,22 @@ export default {
           ...projects,
           ...project.Pipelines.map((pipeline) => {
             refs.add(pipeline.Ref);
+            let color = "green";
+            switch (pipeline.Status) {
+              case "pending":
+                color = "amber";
+                break;
+              case "running":
+                color = "blue";
+                break;
+              case "failed":
+                color = "red";
+                break;
+            }
             return {
               ...project,
               ...pipeline,
-              color:
-                pipeline.Status === "running"
-                  ? "blue"
-                  : pipeline.Status === "failed"
-                  ? "red"
-                  : "green",
+              color: color,
             };
           }),
         ];
