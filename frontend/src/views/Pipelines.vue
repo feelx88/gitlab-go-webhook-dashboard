@@ -95,7 +95,7 @@ export default {
         ];
       }
       this.projects = projects.sort(
-        (a, b) => Date.parse(a.UpdatedAt) > Date.parse(b.UpdatedAt)
+        (a, b) => Date.parse(a.UpdatedAt) < Date.parse(b.UpdatedAt)
       );
       this.refs = Array.from(refs);
     },
