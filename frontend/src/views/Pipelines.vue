@@ -1,0 +1,84 @@
+<template>
+  <v-container fluid>
+    <v-row>
+      <v-col>
+        <v-toolbar>
+          <v-toolbar-title>{{ $route.params.namespace }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-select solo clearable class="mt-md-2 mt-1" v-model="ref" :items="refs" label="Ref"></v-select>
+            <v-btn icon>
+              <v-icon @click="refresh">mdi-refresh</v-icon>
+            </v-btn>
+          </v-toolbar-items>
+          <v-progress-linear :active="projects === null" :indeterminate="true" absolute bottom></v-progress-linear>
+        </v-toolbar>
+      </v-col>
+    </v-row>
+    <v-row v-if="projects">
+      <v-col
+        cols="12"
+        md="4"
+        lg="3"
+        xl="2"
+        v-for="project in projects.filter(project => ref ? project.Ref === ref : true)"
+        :key="project.ID"
+      >
+        <v-card outlined :color="project.color">
+          <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
+          <v-card-text>{{ project.Status }} @ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</v-card-text>
+
+          <v-card-actions>
+            <v-btn text target="_blank" :href="project.URL">GitLab</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
+</template>
+
+<script>
+import Vue from "vue";
+
+export default {
+  data: () => ({
+    projects: null,
+    refs: [],
+    ref: undefined,
+  }),
+  methods: {
+    refresh: function () {
+      this.projects = null;
+      Vue.axios
+        .get(`http://localhost:8080/namespaces/${this.$route.params.namespace}`)
+        .then((response) => {
+          let projects = [];
+          const refs = new Set();
+          for (let project of response.data.Projects) {
+            projects = [
+              ...projects,
+              ...project.Pipelines.map((pipeline) => {
+                refs.add(pipeline.Ref);
+                return {
+                  ...project,
+                  ...pipeline,
+                  color:
+                    pipeline.Status === "running"
+                      ? "blue"
+                      : pipeline.Status === "failed"
+                      ? "red"
+                      : "green",
+                };
+              }),
+            ];
+          }
+          this.projects = projects;
+          this.refs = Array.from(refs);
+        });
+    },
+  },
+  created() {
+    this.refresh();
+  },
+};
+</script>
