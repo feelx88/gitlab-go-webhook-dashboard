@@ -48,7 +48,7 @@ export default {
   created() {
     this.$vuetify.theme.dark = true;
     Vue.axios
-      .get("http://localhost:8080/namespaces")
+      .get(`${process.env.VUE_APP_BACKEND_URL}/namespaces`)
       .then((response) => (this.namespaces = response.data));
   },
 };

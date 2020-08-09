@@ -50,7 +50,9 @@ export default {
     refresh: function () {
       this.projects = null;
       Vue.axios
-        .get(`http://localhost:8080/namespaces/${this.$route.params.namespace}`)
+        .get(
+          `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}`
+        )
         .then((response) => {
           let projects = [];
           const refs = new Set();
