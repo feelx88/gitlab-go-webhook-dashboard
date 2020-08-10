@@ -204,7 +204,7 @@ func deletePipeline(c *gin.Context) {
 	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	db.Delete(&gorm.Model{ID: uint(id)})
+	db.Delete(&Pipeline{}, &gorm.Model{ID: uint(id)})
 
 	for _, conn := range wsConnections {
 		websocket.WriteJSON(conn, &namespace)
