@@ -142,7 +142,6 @@ func webhook(c *gin.Context) {
 	var namespace Namespace
 	var pipeline Pipeline
 	mergeRefs := strings.Split(c.Query("mergeRefs"), ",")
-	ignoreRefs := strings.Split(c.Query("ignoreRefs"), ",")
 
 	db.FirstOrCreate(&namespace, &Namespace{Name: c.Param("namespace")})
 
@@ -151,7 +150,8 @@ func webhook(c *gin.Context) {
 		c.Error(err)
 	}
 
-	if len(ignoreRefs) > 0 {
+	if c.Query("ignoreRefs") != "" {
+		ignoreRefs := strings.Split(c.Query("ignoreRefs"), ",")
 		for _, ignoreRef := range ignoreRefs {
 			matched, _ := regexp.Match(ignoreRef, []byte(webhookData.Object_attributes.Ref))
 			if matched {
