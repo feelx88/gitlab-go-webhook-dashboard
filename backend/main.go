@@ -85,7 +85,7 @@ func main() {
 	router.GET("/namespaces", listNamespaces)
 	router.GET("/namespaces/:namespace", listProjectsForNamespace)
 	router.POST("/namespaces/:namespace", webhook)
-	router.DELETE("/namespace/:namespace/pipelines/:id", deletePipeline)
+	router.DELETE("/namespaces/:namespace/pipelines/:id", deletePipeline)
 	router.GET("/ws", webSocketUpgrade)
 
 	router.Run(listenAddress)
