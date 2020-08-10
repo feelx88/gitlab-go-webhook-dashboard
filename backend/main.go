@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -141,12 +142,21 @@ func webhook(c *gin.Context) {
 	var namespace Namespace
 	var pipeline Pipeline
 	mergeRefs := strings.Split(c.Query("mergeRefs"), ",")
+	ignoreRefs := strings.Split(c.Query("ignoreRefs"), ",")
 
 	db.FirstOrCreate(&namespace, &Namespace{Name: c.Param("namespace")})
 
 	err := c.BindJSON(&webhookData)
 	if err != nil {
 		c.Error(err)
+	}
+
+	for _, ignoreRef := range ignoreRefs {
+		matched, _ := regexp.Match(ignoreRef, []byte(webhookData.Object_attributes.Ref))
+		if matched {
+			log.Println("Ignored ref: %v", webhookData.Object_attributes.Ref)
+			return
+		}
 	}
 
 	db.FirstOrCreate(&project, &Project{
