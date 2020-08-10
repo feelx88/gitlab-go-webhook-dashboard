@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/araddon/dateparse"
@@ -57,6 +59,7 @@ type WebhookData struct {
 
 var dbFileName string
 var listenAddress string
+var mergeRefs []string
 
 var db *gorm.DB
 var wsConnections = []*websocket.Conn{}
@@ -95,6 +98,9 @@ func initEnv() {
 	if listenAddress == "" {
 		listenAddress = "0.0.0.0:8081"
 	}
+
+	mergeRefsInput := os.Getenv("MERGE_REFS")
+	mergeRefs = strings.Split(mergeRefsInput, ",")
 }
 
 func initDB() {
@@ -134,6 +140,7 @@ func webhook(c *gin.Context) {
 	var webhookData WebhookData
 	var namespace Namespace
 	var pipeline Pipeline
+	mergeRefs := strings.Split(c.Query("mergeRefs"), ",")
 
 	db.FirstOrCreate(&namespace, &Namespace{Name: c.Param("namespace")})
 
@@ -148,13 +155,22 @@ func webhook(c *gin.Context) {
 		NamespaceID: &namespace.ID,
 	})
 
-	db.FirstOrCreate(&pipeline, &Pipeline{
-		Ref:       webhookData.Object_attributes.Ref,
+	refSpec := webhookData.Object_attributes.Ref
+	for _, mergeRef := range mergeRefs {
+		matched, _ := regexp.Match(mergeRef, []byte(webhookData.Object_attributes.Ref))
+		if matched {
+			refSpec = strings.ReplaceAll(refSpec, ".*", "%")
+			break
+		}
+	}
+
+	db.Where("ref ilike ?", refSpec).FirstOrCreate(&pipeline, &Pipeline{
 		ProjectID: &project.ID,
 	})
 
 	finishedAt, _ := dateparse.ParseAny(webhookData.Object_attributes.Finished_at)
 	db.Model(&pipeline).UpdateColumn(&Pipeline{
+		Ref:        webhookData.Object_attributes.Ref,
 		Status:     webhookData.Object_attributes.Status,
 		FinishedAt: &finishedAt,
 	})
