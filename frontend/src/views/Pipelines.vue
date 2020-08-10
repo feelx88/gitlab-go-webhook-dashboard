@@ -5,25 +5,20 @@
         <v-toolbar>
           <v-toolbar-title>{{ $route.params.namespace }}</v-toolbar-title>
           <v-spacer></v-spacer>
+          <v-text-field
+            hide-details
+            single-line
+            clearable
+            prepend-icon="mdi-magnify"
+            placeholder="Ref"
+            v-model="ref"
+          ></v-text-field>
           <v-toolbar-items>
-            <v-select
-              solo
-              clearable
-              class="mt-md-2 mt-1"
-              v-model="ref"
-              :items="refs"
-              label="Ref"
-            ></v-select>
             <v-btn icon>
               <v-icon @click="refresh">mdi-refresh</v-icon>
             </v-btn>
           </v-toolbar-items>
-          <v-progress-linear
-            :active="projects === null"
-            :indeterminate="true"
-            absolute
-            bottom
-          ></v-progress-linear>
+          <v-progress-linear :active="projects === null" :indeterminate="true" absolute bottom></v-progress-linear>
         </v-toolbar>
       </v-col>
     </v-row>
@@ -33,31 +28,23 @@
         md="4"
         lg="3"
         xl="2"
-        v-for="project in projects.filter(project => ref ? project.Ref === ref : true)"
+        v-for="project in projects.filter(project => ref ? new RegExp(ref).test(project.Ref) : true)"
         :key="project.ID"
       >
-        <v-card
-          outlined
-          :color="project.color"
-        >
+        <v-card outlined :color="project.color">
           <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
           <v-card-text>
             {{ project.Status }}
-            <span v-if="project.Status === 'success' || project.Status === 'failed'">@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
+            <span
+              v-if="project.Status === 'success' || project.Status === 'failed'"
+            >@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
           </v-card-text>
 
           <v-card-actions>
-            <v-btn
-              icon
-              target="_blank"
-              :href="project.URL"
-            >
+            <v-btn icon target="_blank" :href="project.URL">
               <v-icon>mdi-open-in-new</v-icon>
             </v-btn>
-            <v-btn
-              icon
-              @click="deletePipeline(project.ID)"
-            >
+            <v-btn icon @click="deletePipeline(project.ID)">
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </v-card-actions>
@@ -73,7 +60,6 @@ import Vue from "vue";
 export default {
   data: () => ({
     projects: null,
-    refs: [],
     ref: undefined,
     webSocket: null,
   }),
@@ -91,12 +77,10 @@ export default {
 
     mapData: function (data) {
       let projects = [];
-      const refs = new Set();
       for (let project of data.Projects) {
         projects = [
           ...projects,
           ...project.Pipelines.map((pipeline) => {
-            refs.add(pipeline.Ref);
             let color = "green";
             switch (pipeline.Status) {
               case "pending":
@@ -120,7 +104,6 @@ export default {
       this.projects = projects.sort(
         (a, b) => Date.parse(b.UpdatedAt) - Date.parse(a.UpdatedAt)
       );
-      this.refs = Array.from(refs);
     },
 
     deletePipeline: function (id) {
