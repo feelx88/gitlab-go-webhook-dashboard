@@ -199,14 +199,13 @@ func webhook(c *gin.Context) {
 }
 
 func deletePipeline(c *gin.Context) {
-	var namespace Namespace
-
-	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
-
 	id, _ := strconv.Atoi(c.Param("id"))
 	var pipeline Pipeline
 	db.Find(&pipeline, id)
 	db.Delete(&pipeline)
+
+	var namespace Namespace
+	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
 
 	for _, conn := range wsConnections {
 		websocket.WriteJSON(conn, &namespace)
