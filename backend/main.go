@@ -159,7 +159,7 @@ func webhook(c *gin.Context) {
 	for _, mergeRef := range mergeRefs {
 		matched, _ := regexp.Match(mergeRef, []byte(webhookData.Object_attributes.Ref))
 		if matched {
-			refSpec = strings.ReplaceAll(refSpec, ".*", "%")
+			refSpec = strings.ReplaceAll(mergeRef, ".*", "%")
 			break
 		}
 	}
