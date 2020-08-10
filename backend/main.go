@@ -151,11 +151,13 @@ func webhook(c *gin.Context) {
 		c.Error(err)
 	}
 
-	for _, ignoreRef := range ignoreRefs {
-		matched, _ := regexp.Match(ignoreRef, []byte(webhookData.Object_attributes.Ref))
-		if matched {
-			log.Println("Ignored ref: %v", webhookData.Object_attributes.Ref)
-			return
+	if len(ignoreRefs) > 0 {
+		for _, ignoreRef := range ignoreRefs {
+			matched, _ := regexp.Match(ignoreRef, []byte(webhookData.Object_attributes.Ref))
+			if matched {
+				log.Println("Ignored ref: %v", webhookData.Object_attributes.Ref)
+				return
+			}
 		}
 	}
 
