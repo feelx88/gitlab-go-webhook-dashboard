@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -84,6 +85,7 @@ func main() {
 	router.GET("/namespaces", listNamespaces)
 	router.GET("/namespaces/:namespace", listProjectsForNamespace)
 	router.POST("/namespaces/:namespace", webhook)
+	router.DELETE("/namespace/:namespace/pipelines/:id", deletePipeline)
 	router.GET("/ws", webSocketUpgrade)
 
 	router.Run(listenAddress)
@@ -194,6 +196,21 @@ func webhook(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"success": true})
+}
+
+func deletePipeline(c *gin.Context) {
+	var namespace Namespace
+
+	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
+
+	id, _ := strconv.Atoi(c.Param("id"))
+	db.Delete(&gorm.Model{ID: uint(id)})
+
+	for _, conn := range wsConnections {
+		websocket.WriteJSON(conn, &namespace)
+	}
+
+	c.JSON(200, namespace)
 }
 
 func webSocketUpgrade(c *gin.Context) {

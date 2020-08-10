@@ -6,12 +6,24 @@
           <v-toolbar-title>{{ $route.params.namespace }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
-            <v-select solo clearable class="mt-md-2 mt-1" v-model="ref" :items="refs" label="Ref"></v-select>
+            <v-select
+              solo
+              clearable
+              class="mt-md-2 mt-1"
+              v-model="ref"
+              :items="refs"
+              label="Ref"
+            ></v-select>
             <v-btn icon>
               <v-icon @click="refresh">mdi-refresh</v-icon>
             </v-btn>
           </v-toolbar-items>
-          <v-progress-linear :active="projects === null" :indeterminate="true" absolute bottom></v-progress-linear>
+          <v-progress-linear
+            :active="projects === null"
+            :indeterminate="true"
+            absolute
+            bottom
+          ></v-progress-linear>
         </v-toolbar>
       </v-col>
     </v-row>
@@ -24,18 +36,29 @@
         v-for="project in projects.filter(project => ref ? project.Ref === ref : true)"
         :key="project.ID"
       >
-        <v-card outlined :color="project.color">
+        <v-card
+          outlined
+          :color="project.color"
+        >
           <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
           <v-card-text>
             {{ project.Status }}
-            <span
-              v-if="project.Status === 'success' || project.Status === 'failed'"
-            >@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
+            <span v-if="project.Status === 'success' || project.Status === 'failed'">@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
           </v-card-text>
 
           <v-card-actions>
-            <v-btn icon target="_blank" :href="project.URL">
+            <v-btn
+              icon
+              target="_blank"
+              :href="project.URL"
+            >
               <v-icon>mdi-open-in-new</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              @click="deletePipeline(project.ID)"
+            >
+              <v-icon>mdi-delete</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -99,6 +122,16 @@ export default {
       );
       this.refs = Array.from(refs);
     },
+  },
+
+  deletePipeline(id) {
+    Vue.axios
+      .delete(
+        `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}/pipelines/${id}`
+      )
+      .then((response) => {
+        this.mapData(response.data);
+      });
   },
 
   created() {
