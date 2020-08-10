@@ -122,16 +122,16 @@ export default {
       );
       this.refs = Array.from(refs);
     },
-  },
 
-  deletePipeline(id) {
-    Vue.axios
-      .delete(
-        `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}/pipelines/${id}`
-      )
-      .then((response) => {
-        this.mapData(response.data);
-      });
+    deletePipeline: function (id) {
+      Vue.axios
+        .delete(
+          `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}/pipelines/${id}`
+        )
+        .then((response) => {
+          this.mapData(response.data);
+        });
+    },
   },
 
   created() {
