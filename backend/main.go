@@ -49,6 +49,7 @@ type Pipeline struct {
 // WebhookData json bind model
 type WebhookData struct {
 	Object_attributes struct {
+		Id          int
 		Ref         string
 		Status      string
 		Finished_at string
@@ -165,7 +166,7 @@ func webhook(c *gin.Context) {
 
 	db.FirstOrCreate(&project, &Project{
 		Name:        webhookData.Project.Name,
-		URL:         webhookData.Project.Web_url,
+		URL:         webhookData.Project.Web_url + "/pipelines/" + strconv.Itoa(webhookData.Object_attributes.Id),
 		NamespaceID: &namespace.ID,
 	})
 
