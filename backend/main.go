@@ -134,7 +134,7 @@ func listNamespaces(c *gin.Context) {
 func listProjectsForNamespace(c *gin.Context) {
 	var namespace Namespace
 
-	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
+	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, Namespace{Name: c.Param("namespace")})
 
 	c.JSON(200, namespace)
 }
@@ -146,7 +146,7 @@ func webhook(c *gin.Context) {
 	var pipeline Pipeline
 	mergeRefs := strings.Split(c.Query("mergeRefs"), ",")
 
-	db.FirstOrCreate(&namespace, &Namespace{Name: c.Param("namespace")})
+	db.FirstOrCreate(&namespace, Namespace{Name: c.Param("namespace")})
 
 	err := c.BindJSON(&webhookData)
 	if err != nil {
@@ -164,9 +164,10 @@ func webhook(c *gin.Context) {
 		}
 	}
 
-	db.FirstOrCreate(&project, &Project{
+	db.Assign(Project{
+		URL: webhookData.Project.Web_url + "/pipelines/" + strconv.Itoa(webhookData.Object_attributes.Id),
+	}).FirstOrCreate(&project, Project{
 		Name:        webhookData.Project.Name,
-		URL:         webhookData.Project.Web_url + "/pipelines/" + strconv.Itoa(webhookData.Object_attributes.Id),
 		NamespaceID: &namespace.ID,
 	})
 
@@ -179,18 +180,18 @@ func webhook(c *gin.Context) {
 		}
 	}
 
-	db.Where("ref like ? collate nocase", refSpec).FirstOrCreate(&pipeline, &Pipeline{
+	db.Where("ref like ? collate nocase", refSpec).FirstOrCreate(&pipeline, Pipeline{
 		ProjectID: &project.ID,
 	})
 
 	finishedAt, _ := dateparse.ParseAny(webhookData.Object_attributes.Finished_at)
-	db.Model(&pipeline).UpdateColumn(&Pipeline{
+	db.Model(&pipeline).UpdateColumn(Pipeline{
 		Ref:        webhookData.Object_attributes.Ref,
 		Status:     webhookData.Object_attributes.Status,
 		FinishedAt: &finishedAt,
 	})
 
-	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
+	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, Namespace{Name: c.Param("namespace")})
 
 	for _, conn := range wsConnections {
 		websocket.WriteJSON(conn, &namespace)
@@ -206,7 +207,7 @@ func deletePipeline(c *gin.Context) {
 	db.Delete(&pipeline)
 
 	var namespace Namespace
-	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
+	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, Namespace{Name: c.Param("namespace")})
 
 	for _, conn := range wsConnections {
 		websocket.WriteJSON(conn, &namespace)
