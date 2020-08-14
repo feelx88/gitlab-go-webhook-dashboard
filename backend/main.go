@@ -32,7 +32,6 @@ type Project struct {
 	Namespace   Namespace
 	NamespaceID *uint
 	Name        string
-	URL         string
 	Pipelines   []Pipeline
 }
 
@@ -44,6 +43,7 @@ type Pipeline struct {
 	ProjectID  *uint
 	Ref        string
 	Status     string `gorm:"default:'failed'"`
+	URL        string
 	CreatedAt  *time.Time
 	FinishedAt *time.Time
 }
@@ -167,9 +167,7 @@ func webhook(c *gin.Context) {
 		}
 	}
 
-	db.Assign(Project{
-		URL: webhookData.Project.WebURL + "/pipelines/" + strconv.FormatUint(uint64(webhookData.ObjectAttributes.ID), 10),
-	}).FirstOrCreate(&project, Project{
+	db.FirstOrCreate(&project, Project{
 		Name:        webhookData.Project.Name,
 		NamespaceID: &namespace.ID,
 	})
@@ -194,6 +192,7 @@ func webhook(c *gin.Context) {
 			ExternalID: webhookData.ObjectAttributes.ID,
 			Ref:        webhookData.ObjectAttributes.Ref,
 			Status:     webhookData.ObjectAttributes.Status,
+			URL:        webhookData.Project.WebURL + "/pipelines/" + strconv.FormatUint(uint64(webhookData.ObjectAttributes.ID), 10),
 			CreatedAt:  &createdAt,
 			FinishedAt: &finishedAt,
 		})
