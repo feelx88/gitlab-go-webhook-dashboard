@@ -50,7 +50,7 @@ type Pipeline struct {
 // WebhookData json bind model
 type WebhookData struct {
 	ObjectAttributes struct {
-		ID         int `json:"id"`
+		ID         uint `json:"id"`
 		Ref        string
 		Status     string
 		CreatedAt  string `json:"created_at"`
@@ -186,9 +186,8 @@ func webhook(c *gin.Context) {
 		ProjectID: &project.ID,
 	})
 
-	createdAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.CreatedAt)
-
-	if pipeline.CreatedAt == nil || pipeline.CreatedAt.After(createdAt) {
+	if pipeline.ID >= webhookData.ObjectAttributes.ID {
+		createdAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.CreatedAt)
 		finishedAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.FinishedAt)
 		db.Model(&pipeline).UpdateColumn(Pipeline{
 			Ref:        webhookData.ObjectAttributes.Ref,
