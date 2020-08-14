@@ -43,20 +43,22 @@ type Pipeline struct {
 	ProjectID  *uint
 	Ref        string
 	Status     string `gorm:"default:'failed'"`
+	CreatedAt  *time.Time
 	FinishedAt *time.Time
 }
 
 // WebhookData json bind model
 type WebhookData struct {
-	Object_attributes struct {
-		Id          int
-		Ref         string
-		Status      string
-		Finished_at string
-	}
+	ObjectAttributes struct {
+		ID         int `json:"id"`
+		Ref        string
+		Status     string
+		CreatedAt  string `json:"created_at"`
+		FinishedAt string `json:"finished_at"`
+	} `json:"object_attributes"`
 	Project struct {
-		Name    string
-		Web_url string
+		Name   string
+		WebURL string `json:"web_url"`
 	}
 }
 
@@ -156,45 +158,50 @@ func webhook(c *gin.Context) {
 	if c.Query("ignoreRefs") != "" {
 		ignoreRefs := strings.Split(c.Query("ignoreRefs"), ",")
 		for _, ignoreRef := range ignoreRefs {
-			matched, _ := regexp.Match(ignoreRef, []byte(webhookData.Object_attributes.Ref))
+			matched, _ := regexp.Match(ignoreRef, []byte(webhookData.ObjectAttributes.Ref))
 			if matched {
-				log.Println("Ignored ref: %v", webhookData.Object_attributes.Ref)
+				log.Println("Ignored ref: %v", webhookData.ObjectAttributes.Ref)
 				return
 			}
 		}
 	}
 
 	db.Assign(Project{
-		URL: webhookData.Project.Web_url + "/pipelines/" + strconv.Itoa(webhookData.Object_attributes.Id),
+		URL: webhookData.Project.WebURL + "/pipelines/" + strconv.Itoa(webhookData.ObjectAttributes.ID),
 	}).FirstOrCreate(&project, Project{
 		Name:        webhookData.Project.Name,
 		NamespaceID: &namespace.ID,
 	})
 
-	refSpec := webhookData.Object_attributes.Ref
+	refSpec := webhookData.ObjectAttributes.Ref
 	for _, mergeRef := range mergeRefs {
-		matched, _ := regexp.Match(mergeRef, []byte(webhookData.Object_attributes.Ref))
+		matched, _ := regexp.Match(mergeRef, []byte(webhookData.ObjectAttributes.Ref))
 		if matched {
 			refSpec = strings.ReplaceAll(mergeRef, ".*", "%")
 			break
 		}
 	}
 
-	db.Where("ref like ? collate nocase", refSpec).FirstOrCreate(&pipeline, Pipeline{
+	db.Where("ref like ? collate nocase", refSpec).FirstOrInit(&pipeline, Pipeline{
 		ProjectID: &project.ID,
 	})
 
-	finishedAt, _ := dateparse.ParseAny(webhookData.Object_attributes.Finished_at)
-	db.Model(&pipeline).UpdateColumn(Pipeline{
-		Ref:        webhookData.Object_attributes.Ref,
-		Status:     webhookData.Object_attributes.Status,
-		FinishedAt: &finishedAt,
-	})
+	createdAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.CreatedAt)
 
-	db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, Namespace{Name: c.Param("namespace")})
+	if pipeline.CreatedAt != nil && pipeline.CreatedAt.After(createdAt) {
+		finishedAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.FinishedAt)
+		db.Model(&pipeline).UpdateColumn(Pipeline{
+			Ref:        webhookData.ObjectAttributes.Ref,
+			Status:     webhookData.ObjectAttributes.Status,
+			CreatedAt:  &createdAt,
+			FinishedAt: &finishedAt,
+		})
 
-	for _, conn := range wsConnections {
-		websocket.WriteJSON(conn, &namespace)
+		db.Preload("Projects").Preload("Projects.Pipelines").First(&namespace, &Namespace{Name: c.Param("namespace")})
+
+		for _, conn := range wsConnections {
+			websocket.WriteJSON(conn, &namespace)
+		}
 	}
 
 	c.JSON(200, gin.H{"success": true})
