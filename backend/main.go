@@ -168,7 +168,7 @@ func webhook(c *gin.Context) {
 	}
 
 	db.Assign(Project{
-		URL: webhookData.Project.WebURL + "/pipelines/" + strconv.Itoa(webhookData.ObjectAttributes.ID),
+		URL: webhookData.Project.WebURL + "/pipelines/" + strconv.FormatUint(uint64(webhookData.ObjectAttributes.ID), 10),
 	}).FirstOrCreate(&project, Project{
 		Name:        webhookData.Project.Name,
 		NamespaceID: &namespace.ID,
