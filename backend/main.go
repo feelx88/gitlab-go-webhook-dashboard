@@ -188,7 +188,7 @@ func webhook(c *gin.Context) {
 
 	createdAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.CreatedAt)
 
-	if pipeline.CreatedAt != nil && pipeline.CreatedAt.After(createdAt) {
+	if pipeline.CreatedAt == nil || pipeline.CreatedAt.After(createdAt) {
 		finishedAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.FinishedAt)
 		db.Model(&pipeline).UpdateColumn(Pipeline{
 			Ref:        webhookData.ObjectAttributes.Ref,
