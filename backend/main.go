@@ -181,7 +181,7 @@ func webhook(c *gin.Context) {
 		}
 	}
 
-	db.Where("ref like ? collate nocase", refSpec).FirstOrInit(&pipeline, Pipeline{
+	db.Where("ref like ? collate nocase", refSpec).FirstOrCreate(&pipeline, Pipeline{
 		ProjectID: &project.ID,
 	})
 
