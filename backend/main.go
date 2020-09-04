@@ -44,7 +44,7 @@ type Pipeline struct {
 	Ref        string
 	Status     string `gorm:"default:'failed'"`
 	URL        string
-	CreatedAt  *time.Time
+	SpawnedAt  *time.Time
 	FinishedAt *time.Time
 }
 
@@ -193,7 +193,7 @@ func webhook(c *gin.Context) {
 			Ref:        webhookData.ObjectAttributes.Ref,
 			Status:     webhookData.ObjectAttributes.Status,
 			URL:        webhookData.Project.WebURL + "/pipelines/" + strconv.FormatUint(uint64(webhookData.ObjectAttributes.ID), 10),
-			CreatedAt:  &createdAt,
+			SpawnedAt:  &createdAt,
 			FinishedAt: &finishedAt,
 		})
 
