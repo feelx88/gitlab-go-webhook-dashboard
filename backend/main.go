@@ -185,7 +185,7 @@ func webhook(c *gin.Context) {
 		ProjectID: &project.ID,
 	})
 
-	if webhookData.ObjectAttributes.ID >= pipeline.ExternalID {
+	if pipeline.SpawnedAt == nil || webhookData.ObjectAttributes.ID >= pipeline.ExternalID {
 		createdAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.CreatedAt)
 		finishedAt, _ := dateparse.ParseAny(webhookData.ObjectAttributes.FinishedAt)
 		db.Model(&pipeline).UpdateColumn(Pipeline{
