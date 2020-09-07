@@ -10,6 +10,14 @@
             single-line
             clearable
             prepend-icon="mdi-magnify"
+            placeholder="Project"
+            v-model="project"
+          ></v-text-field>
+          <v-text-field
+            hide-details
+            single-line
+            clearable
+            prepend-icon="mdi-magnify"
             placeholder="Ref"
             v-model="ref"
           ></v-text-field>
@@ -18,7 +26,12 @@
               <v-icon @click="refresh">mdi-refresh</v-icon>
             </v-btn>
           </v-toolbar-items>
-          <v-progress-linear :active="projects === null" :indeterminate="true" absolute bottom></v-progress-linear>
+          <v-progress-linear
+            :active="projects === null"
+            :indeterminate="true"
+            absolute
+            bottom
+          ></v-progress-linear>
         </v-toolbar>
       </v-col>
     </v-row>
@@ -28,23 +41,31 @@
         md="4"
         lg="3"
         xl="2"
-        v-for="project in projects.filter(project => ref ? new RegExp(ref).test(project.Ref) : true)"
+        v-for="project in projects.filter(project => (ref ? new RegExp(ref).test(project.Ref) : true) && (project ? new RegExp(ref).test(project.Name) : true))"
         :key="project.ID"
       >
-        <v-card outlined :color="project.color">
+        <v-card
+          outlined
+          :color="project.color"
+        >
           <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
           <v-card-text>
             {{ project.Status }}
-            <span
-              v-if="project.Status === 'success' || project.Status === 'failed'"
-            >@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
+            <span v-if="project.Status === 'success' || project.Status === 'failed'">@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
           </v-card-text>
 
           <v-card-actions>
-            <v-btn icon target="_blank" :href="project.URL">
+            <v-btn
+              icon
+              target="_blank"
+              :href="project.URL"
+            >
               <v-icon>mdi-open-in-new</v-icon>
             </v-btn>
-            <v-btn icon @click="deletePipeline(project.ID)">
+            <v-btn
+              icon
+              @click="deletePipeline(project.ID)"
+            >
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </v-card-actions>
@@ -60,6 +81,7 @@ import Vue from "vue";
 export default {
   data: () => ({
     projects: null,
+    project: undefined,
     ref: undefined,
     webSocket: null,
   }),
