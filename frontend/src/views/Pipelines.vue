@@ -84,6 +84,7 @@ export default {
     project: undefined,
     ref: undefined,
     webSocket: null,
+    sound: new Audio("file:///assets/eventually.ogg"),
   }),
   computed: {
     filteredProjects: function () {
@@ -134,6 +135,21 @@ export default {
           }),
         ];
       }
+
+      for (const project of projects) {
+        if (project.color === "green") {
+          if (
+            this.projects.find(
+              (existingProject) =>
+                existingProject.ID === project.ID &&
+                existingProject.color !== "green"
+            )
+          ) {
+            this.sound.play();
+          }
+        }
+      }
+
       this.projects = projects.sort(
         (a, b) => Date.parse(b.UpdatedAt) - Date.parse(a.UpdatedAt)
       );
