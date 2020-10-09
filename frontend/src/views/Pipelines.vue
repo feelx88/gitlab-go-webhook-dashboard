@@ -84,7 +84,7 @@ export default {
     project: undefined,
     ref: undefined,
     webSocket: null,
-    sound: new Audio("/eventually.ogg"),
+    sound: new Audio("/eventually.mp3"),
   }),
   computed: {
     filteredProjects: function () {
@@ -140,19 +140,13 @@ export default {
         ];
       }
 
-      for (const project of projects) {
-        if (project.color === "green") {
-          if (
-            this.projects &&
-            this.projects.find(
-              (existingProject) =>
-                existingProject.ID === project.ID &&
-                existingProject.color !== "green"
-            )
-          ) {
-            this.sound.play();
-          }
-        }
+      if (
+        this.projects &&
+        projects &&
+        this.projects.find((project) => project.color !== "green") &&
+        !projects.find((project) => project.color !== "green")
+      ) {
+        this.sound.play();
       }
 
       this.projects = projects.sort(
