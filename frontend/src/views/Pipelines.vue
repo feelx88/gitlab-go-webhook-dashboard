@@ -84,7 +84,7 @@ export default {
     project: undefined,
     ref: undefined,
     webSocket: null,
-    sound: new Audio("file:///assets/eventually.ogg"),
+    sound: new Audio("/eventually.ogg"),
   }),
   computed: {
     filteredProjects: function () {
