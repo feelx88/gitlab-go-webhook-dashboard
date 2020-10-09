@@ -35,7 +35,7 @@
         </v-toolbar>
       </v-col>
     </v-row>
-    <v-row v-if="projects">
+    <v-row v-if="filteredProjects">
       <v-col
         cols="12"
         md="4"
@@ -88,15 +88,17 @@ export default {
   }),
   computed: {
     filteredProjects: function () {
-      return this.projects.filter((project) => {
-        const refMatches = this.ref
-          ? new RegExp(this.ref).test(project.Ref)
-          : true;
-        const projectMatches = this.project
-          ? new RegExp(this.project).test(project.Name)
-          : true;
-        return refMatches && projectMatches;
-      });
+      return this.projects
+        ? this.projects.filter((project) => {
+            const refMatches = this.ref
+              ? new RegExp(this.ref).test(project.Ref)
+              : true;
+            const projectMatches = this.project
+              ? new RegExp(this.project).test(project.Name)
+              : true;
+            return refMatches && projectMatches;
+          })
+        : null;
     },
   },
   methods: {
