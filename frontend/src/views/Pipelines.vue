@@ -143,6 +143,7 @@ export default {
       for (const project of projects) {
         if (project.color === "green") {
           if (
+            this.projects &&
             this.projects.find(
               (existingProject) =>
                 existingProject.ID === project.ID &&
