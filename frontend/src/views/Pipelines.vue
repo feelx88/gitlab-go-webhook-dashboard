@@ -103,17 +103,18 @@ export default {
   },
   methods: {
     refresh: function () {
-      this.projects = null;
       Vue.axios
         .get(
           `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}`
         )
-        .then((response) => {
-          this.mapData(response.data);
-        });
+        .then((response) => this.mapData(response.data));
     },
 
     mapData: function (data) {
+      const oldFilteredProjects = (this.filteredProjects || []).map(
+        (project) => project.color
+      );
+
       let projects = [];
       for (let project of data.Projects) {
         projects = [
@@ -140,18 +141,18 @@ export default {
         ];
       }
 
-      if (
-        this.projects &&
-        projects &&
-        this.projects.find((project) => project.color !== "green") &&
-        !projects.find((project) => project.color !== "green")
-      ) {
-        this.sound.play();
-      }
-
       this.projects = projects.sort(
         (a, b) => Date.parse(b.UpdatedAt) - Date.parse(a.UpdatedAt)
       );
+
+      if (
+        oldFilteredProjects &&
+        this.filteredProjects &&
+        oldFilteredProjects.find((color) => color !== "green") &&
+        !this.filteredProjects.find((project) => project.color !== "green")
+      ) {
+        this.sound.play();
+      }
     },
 
     deletePipeline: function (id) {
@@ -159,9 +160,7 @@ export default {
         .delete(
           `${process.env.VUE_APP_BACKEND_URL}/namespaces/${this.$route.params.namespace}/pipelines/${id}`
         )
-        .then((response) => {
-          this.mapData(response.data);
-        });
+        .then((response) => this.mapData(response.data));
     },
   },
 
