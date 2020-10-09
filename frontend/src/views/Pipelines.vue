@@ -88,9 +88,11 @@ export default {
   }),
   computed: {
     filteredProjects: function () {
-      return projects.filter((project) => {
-        refMatches = this.ref ? new RegExp(this.ref).test(project.Ref) : true;
-        projectMatches = this.project
+      return this.projects.filter((project) => {
+        const refMatches = this.ref
+          ? new RegExp(this.ref).test(project.Ref)
+          : true;
+        const projectMatches = this.project
           ? new RegExp(this.project).test(project.Name)
           : true;
         return refMatches && projectMatches;
