@@ -41,7 +41,7 @@
         md="4"
         lg="3"
         xl="2"
-        v-for="project in projects.filter(project => (ref ? new RegExp(ref).test(project.Ref) : true) && (project ? new RegExp(ref).test(project.Name) : true))"
+        v-for="project in filteredProjects"
         :key="project.ID"
       >
         <v-card
@@ -85,6 +85,17 @@ export default {
     ref: undefined,
     webSocket: null,
   }),
+  computed: {
+    filteredProjects: function () {
+      return projects.filter((project) => {
+        refMatches = this.ref ? new RegExp(this.ref).test(project.Ref) : true;
+        projectMatches = this.project
+          ? new RegExp(this.project).test(project.Name)
+          : true;
+        return refMatches && projectMatches;
+      });
+    },
+  },
   methods: {
     refresh: function () {
       this.projects = null;
