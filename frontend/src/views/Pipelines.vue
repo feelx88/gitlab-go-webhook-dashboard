@@ -141,9 +141,15 @@ export default {
         ];
       }
 
-      this.projects = projects.sort(
-        (a, b) => Date.parse(b.UpdatedAt) - Date.parse(a.UpdatedAt)
-      );
+      this.projects = projects.sort((a, b) => {
+        if (a.Status !== "success") {
+          return -1;
+        } else if (b.Status !== "success") {
+          return 1;
+        }
+
+        return Date.parse(b.FinishedAt) - Date.parse(a.FinishedAt);
+      });
 
       if (
         oldFilteredProjects &&
