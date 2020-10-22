@@ -9,6 +9,7 @@
             hide-details
             single-line
             clearable
+            name="project"
             prepend-icon="mdi-magnify"
             placeholder="Project"
             v-model="project"
@@ -17,6 +18,7 @@
             hide-details
             single-line
             clearable
+            name="ref"
             prepend-icon="mdi-magnify"
             placeholder="Ref"
             v-model="ref"
