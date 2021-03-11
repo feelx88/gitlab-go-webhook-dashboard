@@ -2,8 +2,18 @@
   <v-container fluid>
     <v-row>
       <v-col>
+        <v-alert
+          :value="!webSocketStatus"
+          color="orange"
+          dismissible
+        >
+          WebSocket disconnected! Trying to reconnect shortly...
+        </v-alert>
         <v-toolbar>
-          <v-toolbar-title>{{ $route.params.namespace }}</v-toolbar-title>
+          <div :class="webSocketStatus ? 'indicator green' : 'indicator red'"></div>
+          <v-toolbar-title >
+            {{ $route.params.namespace }}
+          </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-text-field
             hide-details
@@ -77,6 +87,25 @@
   </v-container>
 </template>
 
+<style scoped>
+.indicator {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 0.25em;
+  position: absolute;
+  right: 0.25em;
+  top: 0.25em;
+}
+
+.indicator.red {
+  background-color: red;
+}
+
+.indicator.green {
+  background-color: green;
+}
+</style>
+
 <script>
 import Vue from "vue";
 
@@ -86,6 +115,8 @@ export default {
     project: undefined,
     ref: undefined,
     webSocket: null,
+    webSocketStatus: false,
+    pingInterval: null,
     sound: new Audio("/eventually.mp3"),
   }),
   computed: {
@@ -175,15 +206,40 @@ export default {
   created() {
     this.refresh();
 
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+
     this.webSocket = new WebSocket(
       `${process.env.VUE_APP_BACKEND_URL}/ws`.replace("http", "ws")
     );
+
+    this.webSocket.onopen = () => {
+      this.webSocketStatus = true;
+      this.pingInterval = setInterval(() => {
+        this.webSocket.send('ping');
+      }, 5000);
+    };
+
     this.webSocket.onmessage = (message) =>
       this.mapData(JSON.parse(message.data));
+
+    this.webSocket.onerror = () => {
+      this.webSocketStatus = false;
+      setTimeout(() => {
+        this.created();
+      }, 5000);
+    };
   },
 
   destroyed() {
-    this.webSocket.close();
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+
+    if (this.webSocket) {
+      this.webSocket.close();
+    }
   },
 };
 </script>
