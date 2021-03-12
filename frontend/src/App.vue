@@ -61,9 +61,9 @@ export default {
   }),
 
   methods: {
-    toggleDrawer: function (event) {
+    toggleDrawer: function () {
       this.drawer = !this.drawer;
-      window.localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, drawer);
+      window.localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, this.drawer);
     },
   },
 
