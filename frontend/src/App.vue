@@ -10,7 +10,12 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link v-for="namespace in namespaces" :key="namespace.id" :to="namespace.Name">
+        <v-list-item
+          link
+          v-for="namespace in namespaces"
+          :key="namespace.id"
+          :to="namespace.Name"
+        >
           <v-list-item-action>
             <v-icon>mdi-rocket</v-icon>
           </v-list-item-action>
@@ -22,9 +27,14 @@
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="toggleDrawer"></v-app-bar-nav-icon>
       <v-toolbar-title>GitLab Dashboard</v-toolbar-title>
-      <v-progress-linear :active="namespaces === null" :indeterminate="true" absolute bottom></v-progress-linear>
+      <v-progress-linear
+        :active="namespaces === null"
+        :indeterminate="true"
+        absolute
+        bottom
+      ></v-progress-linear>
     </v-app-bar>
 
     <v-main>
@@ -40,12 +50,22 @@
 <script>
 import Vue from "vue";
 
+const LOCAL_STORAGE_KEY_DRAWER_STATUS = "drawerOpen";
+
 export default {
   data: () => ({
-    drawer: null,
+    drawer:
+      window.localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) || true,
     namespaces: null,
     webSocket: null,
   }),
+
+  methods: {
+    toggleDrawer: function (event) {
+      this.drawer = !this.drawer;
+      window.localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, drawer);
+    },
+  },
 
   created() {
     this.$vuetify.theme.dark = true;
