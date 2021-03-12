@@ -54,8 +54,7 @@ const LOCAL_STORAGE_KEY_DRAWER_STATUS = "drawerOpen";
 
 export default {
   data: () => ({
-    drawer:
-      window.localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) || true,
+    drawer: null,
     namespaces: null,
     webSocket: null,
   }),
@@ -65,6 +64,11 @@ export default {
       this.drawer = !this.drawer;
       window.localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, this.drawer);
     },
+  },
+
+  mounted() {
+    this.drawer =
+      window.localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) || true;
   },
 
   created() {
