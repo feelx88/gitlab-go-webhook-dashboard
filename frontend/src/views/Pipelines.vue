@@ -96,7 +96,12 @@
               <v-icon class="mr-1">mdi-open-in-new</v-icon>
               Pipeline
             </v-btn>
-            <v-btn v-if="edit" text @click="deletePipeline" class="red--text">
+            <v-btn
+              v-if="edit"
+              text
+              @click="deletePipeline(project.ID)"
+              class="red--text"
+            >
               <v-icon class="mr-1">mdi-delete</v-icon>
               Delete
             </v-btn>
