@@ -12,6 +12,10 @@
           <v-toolbar-title>
             {{ $route.params.namespace }}
           </v-toolbar-title>
+          <v-btn plain icon @click="edit = !edit" class="ml-2">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+          <span v-if="edit" class="ml-2 red--text"> Edit Mode enabled </span>
           <v-spacer></v-spacer>
           <v-text-field
             hide-details
@@ -92,6 +96,10 @@
               <v-icon class="mr-1">mdi-open-in-new</v-icon>
               Pipeline
             </v-btn>
+            <v-btn v-if="edit" text @click="deletePipeline" class="red--text">
+              <v-icon class="mr-1">mdi-delete</v-icon>
+              Delete
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -130,6 +138,7 @@ export default {
     webSocketStatus: false,
     pingInterval: null,
     sound: new Audio("/eventually.mp3"),
+    edit: false,
   }),
   computed: {
     filteredProjects: function () {
