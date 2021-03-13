@@ -1,5 +1,5 @@
 <template>
-  <v-app id="inspire">
+  <v-app :style="css">
     <v-navigation-drawer v-model="drawer" app clipped stateless>
       <v-list dense>
         <v-list-item link to="/generator">
@@ -28,7 +28,8 @@
 
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>GitLab Dashboard</v-toolbar-title>
+      <div v-if="appIconSrc" class="app-icon"></div>
+      <v-app-bar-title> GitLab Dashboard </v-app-bar-title>
       <v-progress-linear
         :active="namespaces === null"
         :indeterminate="true"
@@ -43,6 +44,14 @@
   </v-app>
 </template>
 
+<style scoped>
+.app-icon {
+  width: 100px;
+  height: 100%;
+  background-image: var(--app-icon-src);
+}
+</style>
+
 <script>
 import Vue from "vue";
 
@@ -54,9 +63,18 @@ export default {
       localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) === "false"
         ? false
         : true,
+    appIconSrc: process.env.VUE_APP_ICON_SRC,
     namespaces: null,
     webSocket: null,
   }),
+
+  computed: {
+    css() {
+      return {
+        "--app-icon-src": `url(${this.appIconSrc})`,
+      };
+    },
+  },
 
   watch: {
     drawer: function (value) {
