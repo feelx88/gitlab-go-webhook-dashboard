@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Generator from '../Generator'
 import Pipelines from '../views/Pipelines'
 
 Vue.use(VueRouter)
 
 const routes = [
-  {path: '/:namespace', component: Pipelines}
-]
+  { path: '/generator', component: Generator },
+  { path: '/:namespace', component: Pipelines }
+];
 
 const router = new VueRouter({
   mode: 'history',

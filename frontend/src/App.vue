@@ -2,12 +2,12 @@
   <v-app id="inspire">
     <v-navigation-drawer v-model="drawer" app clipped stateless>
       <v-list dense>
-        <v-list-item link to="/">
+        <v-list-item link to="/generator">
           <v-list-item-action>
             <v-icon>mdi-view-dashboard</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
+            <v-list-item-title>Webhook url generator</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item
