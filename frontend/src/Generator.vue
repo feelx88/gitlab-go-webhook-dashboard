@@ -24,6 +24,9 @@
                         display their pipelines in the dashboard, you could use <code>feature/.*</code>
                     </li>
                 </ul>
+                Add the generated webhook url to your GitLab project's settings page under 
+                <code>Webhooks</code> and enable only <code>Pipeline Events</code> - now, the next 
+                time your pipeline is triggered, it appears as a card under the configured namespace.
             </p>
             <v-text-field
               clearable
