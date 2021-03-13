@@ -1,6 +1,6 @@
 <template>
   <v-app id="inspire">
-    <v-navigation-drawer v-model="drawer" app clipped>
+    <v-navigation-drawer v-model="drawer" app clipped stateless>
       <v-list dense>
         <v-list-item link to="/">
           <v-list-item-action>
@@ -27,7 +27,7 @@
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left>
-      <v-app-bar-nav-icon @click.stop="toggleDrawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>GitLab Dashboard</v-toolbar-title>
       <v-progress-linear
         :active="namespaces === null"
@@ -54,21 +54,18 @@ const LOCAL_STORAGE_KEY_DRAWER_STATUS = "drawerOpen";
 
 export default {
   data: () => ({
-    drawer: null,
+    drawer:
+      localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) === "false"
+        ? false
+        : true,
     namespaces: null,
     webSocket: null,
   }),
 
-  methods: {
-    toggleDrawer: function () {
-      this.drawer = !this.drawer;
-      window.localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, this.drawer);
+  watch: {
+    drawer: function (value) {
+      localStorage.setItem(LOCAL_STORAGE_KEY_DRAWER_STATUS, value);
     },
-  },
-
-  mounted() {
-    this.drawer =
-      window.localStorage.getItem(LOCAL_STORAGE_KEY_DRAWER_STATUS) || true;
   },
 
   created() {
