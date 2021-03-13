@@ -40,10 +40,6 @@
     <v-main>
       <router-view></router-view>
     </v-main>
-
-    <v-footer app>
-      <span>&copy; 2020 Felix Müller</span>
-    </v-footer>
   </v-app>
 </template>
 
