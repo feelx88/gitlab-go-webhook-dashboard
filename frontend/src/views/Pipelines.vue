@@ -6,16 +6,26 @@
           WebSocket disconnected! Trying to reconnect shortly...
         </v-alert>
         <v-toolbar>
-          <div
-            :class="webSocketStatus ? 'indicator green' : 'indicator red'"
-          ></div>
-          <v-toolbar-title>
-            {{ $route.params.namespace }}
-          </v-toolbar-title>
-          <v-btn plain icon @click="edit = !edit" class="ml-2">
+          <v-badge
+            overlap
+            bordered
+            :icon="webSocketStatus ? 'mdi-power-plug' : 'mdi-flash'"
+            :color="webSocketStatus ? 'green' : 'red'"
+          >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-toolbar-title class="mr-2" v-on="on" v-bind="attrs">
+                  {{ $route.params.namespace }}
+                </v-toolbar-title>
+              </template>
+              <span v-if="webSocketStatus">WebSocket connected</span>
+              <span v-else>WebSocket disconnected</span>
+            </v-tooltip>
+          </v-badge>
+          <v-btn plain icon @click="edit = !edit" class="mr-2">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
-          <span v-if="edit" class="ml-2 red--text"> Edit Mode enabled </span>
+          <span v-if="edit" class="red--text"> Edit Mode enabled </span>
           <v-spacer></v-spacer>
           <v-text-field
             hide-details
@@ -111,25 +121,6 @@
     </v-row>
   </v-container>
 </template>
-
-<style scoped>
-.indicator {
-  width: 0.5em;
-  height: 0.5em;
-  border-radius: 0.25em;
-  position: absolute;
-  right: 0.25em;
-  top: 0.25em;
-}
-
-.indicator.red {
-  background-color: red;
-}
-
-.indicator.green {
-  background-color: green;
-}
-</style>
 
 <script>
 import Vue from "vue";
