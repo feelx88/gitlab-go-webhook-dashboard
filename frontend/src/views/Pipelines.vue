@@ -2,16 +2,14 @@
   <v-container fluid>
     <v-row>
       <v-col>
-        <v-alert
-          :value="!webSocketStatus"
-          color="orange"
-          dismissible
-        >
+        <v-alert :value="!webSocketStatus" color="orange" dismissible>
           WebSocket disconnected! Trying to reconnect shortly...
         </v-alert>
         <v-toolbar>
-          <div :class="webSocketStatus ? 'indicator green' : 'indicator red'"></div>
-          <v-toolbar-title >
+          <div
+            :class="webSocketStatus ? 'indicator green' : 'indicator red'"
+          ></div>
+          <v-toolbar-title>
             {{ $route.params.namespace }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -53,32 +51,46 @@
         md="4"
         lg="3"
         xl="2"
+        align-self="stretch"
         v-for="project in filteredProjects"
         :key="project.ID"
       >
         <v-card
           outlined
           :color="project.color"
+          class="d-flex flex-column"
+          height="100%"
         >
-          <v-card-title>{{ project.Name }} - {{ project.Ref }}</v-card-title>
-          <v-card-text>
-            {{ project.Status }}
-            <span v-if="project.Status === 'success' || project.Status === 'failed'">@ {{ new Date(Date.parse(project.FinishedAt)).toLocaleString() }}</span>
+          <v-card-title
+            class="d-flex flex-row flex-nowrap justify-space-between align-start"
+          >
+            <span>
+              {{ project.Name }}
+            </span>
+            <v-chip class="flex-shrink-0">
+              <v-avatar left>
+                <v-icon>mdi-source-branch</v-icon>
+              </v-avatar>
+              {{ project.Ref }}
+            </v-chip>
+          </v-card-title>
+          <v-card-text class="flex-grow-1">
+            <span class="subtitle-1 font-weight-black">
+              {{ project.Status }}
+            </span>
+            <span
+              v-if="project.Status === 'success' || project.Status === 'failed'"
+              >@
+              {{
+                new Date(Date.parse(project.FinishedAt)).toLocaleString()
+              }}</span
+            >
           </v-card-text>
 
           <v-card-actions>
-            <v-btn
-              icon
-              target="_blank"
-              :href="project.URL"
-            >
-              <v-icon>mdi-open-in-new</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              @click="deletePipeline(project.ID)"
-            >
-              <v-icon>mdi-delete</v-icon>
+            <v-btn text target="_blank" :href="project.URL">
+              <v-icon class="mr-1">mdi-open-in-new</v-icon>
+              Pipeline
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -217,7 +229,7 @@ export default {
     this.webSocket.onopen = () => {
       this.webSocketStatus = true;
       this.pingInterval = setInterval(() => {
-        this.webSocket.send('ping');
+        this.webSocket.send("ping");
       }, 5000);
     };
 
