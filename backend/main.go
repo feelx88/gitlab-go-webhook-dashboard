@@ -208,7 +208,14 @@ func webhook(c *gin.Context) {
 }
 
 func deletePipeline(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	idParam := c.Param("id")
+
+	if idParam == "" {
+		c.AbortWithStatus(422)
+		return
+	}
+
+	id, _ := strconv.Atoi(idParam)
 	var pipeline Pipeline
 	db.Find(&pipeline, id)
 	db.Delete(&pipeline)
