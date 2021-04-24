@@ -234,7 +234,13 @@ export default {
     this.webSocket.onopen = () => {
       this.webSocketStatus = true;
       this.pingInterval = setInterval(() => {
-        this.webSocket.send("ping");
+        try {
+          this.webSocket.send("ping");
+        } catch(exception) {
+          this.webSocketStatus = false;
+          console.error(exception);
+          this.created();
+        }
       }, 5000);
     };
 
