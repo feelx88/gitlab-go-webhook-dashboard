@@ -1,4 +1,4 @@
-FROM node:alpine as build
+FROM node:16-alpine as build
 
 ARG backend_url
 ARG icon_src
